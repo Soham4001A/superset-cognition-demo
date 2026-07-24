@@ -567,6 +567,29 @@ SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = 131072  # double the default
 
 Alternatively, split a very large dashboard into several smaller ones. Note that this check is enforced when saving layout edits in the UI; a dashboard imported from a ZIP with an oversized layout will load and render, but cannot be edited and re-saved until the limit is raised.
 
+## Compliance Banner (demo)
+
+`superset/sentinel_demo_config.py` exposes an experimental compliance banner in the UI. It is driven
+by the `SENTINEL_DEMO_COMPLIANCE_BANNER` environment variable rather than by `FEATURE_FLAGS`, so it
+does not appear in the [Feature Flags](/admin-docs/configuration/feature-flags) table:
+
+| Environment variable | Default | Values | Effect |
+|---|---|---|---|
+| `SENTINEL_DEMO_COMPLIANCE_BANNER` | `false` | `true` enables; any other value (including unset) disables | Sets `SENTINEL_DEMO_COMPLIANCE_BANNER` to `True`, exposing the experimental compliance banner |
+
+```bash
+export SENTINEL_DEMO_COMPLIANCE_BANNER=true
+```
+
+The value is compared case-insensitively, so `TRUE` and `True` are equivalent; anything else — `1`,
+`yes`, an empty string — leaves the banner disabled. The variable is read once at import time, so
+changing it requires restarting the Superset processes.
+
+:::note
+This option ships with the compliance demo of this fork and is not part of an upstream Apache
+Superset release.
+:::
+
 :::resources
 - [Blog: Feature Flags in Apache Superset](https://preset.io/blog/feature-flags-in-apache-superset-and-preset/)
 :::
