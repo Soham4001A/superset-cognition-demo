@@ -15,17 +15,19 @@
 # limitations under the License.
 #
 
-FROM alpine:latest
+FROM alpine:3.21
+
+SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 
 ARG DOCKERIZE_VERSION=v0.7.0
 
 RUN apk update --no-cache \
-    && apk add --no-cache wget openssl \
+    && apk add --no-cache wget=1.25.0-r0 openssl=3.3.7-r0 \
     && case "$(apk --print-arch)" in \
         x86_64) ARCH=amd64 ;; \
         aarch64) ARCH=arm64 ;; \
        esac \
-    && wget -O - https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-${ARCH}-${DOCKERIZE_VERSION}.tar.gz | tar xzf - -C /usr/local/bin \
+    && wget -q -O - "https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-${ARCH}-${DOCKERIZE_VERSION}.tar.gz" | tar xzf - -C /usr/local/bin \
     && apk del wget
 
 USER 10001
