@@ -8,6 +8,7 @@
 | ID | Finding | Scanner | Control | Severity | Status | PR | Proxy PR | Opened | Remediation |
 |----|---------|---------|---------|----------|--------|----|----------|--------|-------------|
 | POAM-0001 | _example: hardcoded fallback secret in config_ | Gitleaks | IA-5 | High | Open | — | — | _seed_ | replace with env-injected secret |
+| POAM-0006 | Unpinned scanner tool installs in run_scans.sh (non-reproducible, supply-chain risk) | Manual/Sentinel | RA-5, SI-2, SR-3 | Medium | Remediated | #6 | — | 2026-07-24 | pin semgrep==1.130.0, bandit==1.8.6, pip-licenses==5.0.0 |
 
 <!-- SENTINEL:POAM-ROWS -->
 <!-- Devin appends new POA&M rows directly above this marker, one per finding. -->
