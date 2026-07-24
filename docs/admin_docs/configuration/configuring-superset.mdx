@@ -517,6 +517,24 @@ FEATURE_FLAGS = {
 
 A current list of feature flags can be found in the [Feature Flags](/admin-docs/configuration/feature-flags) documentation.
 
+### SENTINEL_DEMO_COMPLIANCE_BANNER
+
+An experimental, environment-driven toggle defined in `superset/sentinel_demo_config.py`. When it is
+enabled, Superset exposes an experimental compliance banner in the UI. Unlike the flags in
+`FEATURE_FLAGS`, it is read from the environment at import time:
+
+```bash
+export SENTINEL_DEMO_COMPLIANCE_BANNER=true
+```
+
+| Variable | Default | Values | Effect |
+|---|---|---|---|
+| `SENTINEL_DEMO_COMPLIANCE_BANNER` | `false` | `true` / `false` (case-insensitive) | Exposes the experimental compliance banner in the UI |
+
+Any value other than `true` (case-insensitive) leaves the banner disabled. Because the value is
+evaluated when `superset.sentinel_demo_config` is imported, changing the variable requires a restart
+of the Superset processes.
+
 ## Security Configuration
 
 ### HASH_ALGORITHM

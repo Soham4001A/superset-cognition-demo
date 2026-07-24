@@ -26,10 +26,10 @@ Each control lists its **implementation** and the **automated evidence** Sentine
 | **SA-11** | Developer Testing & Evaluation | SAST runs on every change; results block merge until triaged | Semgrep + Bandit gate on the required check |
 | **SR-3 / SR-4** | Supply Chain Controls / Provenance | SBOM generated per build; dependency licenses enforced | Trivy CycloneDX SBOM + `pip-licenses` allowlist |
 | **IA-5 / SC-28** | Authenticator Mgmt / Protection at Rest | No secrets committed to the repo | Gitleaks secret scan (required) |
-| **CM-6 / CM-7** | Configuration Settings / Least Functionality | Container + K8s configs are linted against hardening rules | Hadolint (Dockerfiles) + kube-linter (Helm) |
+| **CM-6 / CM-7** | Configuration Settings / Least Functionality | Container + K8s configs are linted against hardening rules; images pin their base tag, install pinned packages with `--no-install-recommends`, clean apt lists, and end on a non-root `USER` | Hadolint (Dockerfiles) + kube-linter (Helm) + Semgrep dockerfile rules |
 | **CM-2 / CM-3** | Baseline Config / Change Control | Docs are kept in lockstep with code; PRs can't drift docs | docs-currency build + Devin doc-sync commit |
 | **SA-5** | System Documentation | Documentation builds and matches the current diff | Superset docs build validation |
-| **CA-7** | Continuous Monitoring | Compliance posture is measured continuously, not point-in-time | the Sentinel dashboard (findings burn-down, MTTR) |
+| **CA-7** | Continuous Monitoring | Compliance posture is measured continuously, not point-in-time; the normalizer ingests every scanner's raw output (including Hadolint's per-file concatenated JSON) so no scanner is silently dropped | the Sentinel dashboard (findings burn-down, MTTR) |
 
 ## 3. Automated assessment procedure
 
@@ -44,3 +44,4 @@ POA&M item mapped to the control above; (e) post a required, human-digestible re
 | Date | PR | Change | By |
 |---|---|---|---|
 | _seed_ | — | Initial baseline SSP | Sentinel |
+| 2026-07-24 | #3 | CM-6/CM-7 image-hardening implementation stated explicitly; CA-7 evidence pipeline noted to cover Hadolint output parsing (see POAM-0002..0009) | Sentinel |
