@@ -112,6 +112,17 @@ USER superset
 CMD ["/app/docker/entrypoints/run-server.sh"]
 ```
 
+## Demo build files (not published)
+
+In addition to the images above, this fork carries build files that are used only for
+demonstrations of the automated compliance gate. They are never built, tagged, or published by
+the release pipeline, and they are **not** supported for production use:
+
+- `demo.live.Dockerfile`: a minimal live-demo service image built from a Python base image. It
+  installs `curl`, copies the repository into `/app`, and starts `python /app/main.py`. It sets
+  `SENTINEL_LIVE_DEMO_FLAG=1`, an environment variable read only by the demo service to indicate
+  that it is running inside the live compliance-gate demo; it has no effect on Superset itself.
+
 ## Key ARGs in Dockerfile
 
 - `BUILD_TRANSLATIONS`: whether to build the translations into the image. For the
