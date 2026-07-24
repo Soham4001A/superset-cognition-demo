@@ -64,3 +64,4 @@ POA&M item mapped to the control above; (e) post a required, human-digestible re
 |---|---|---|---|
 | _seed_ | — | Initial baseline SSP | Sentinel |
 | 2026-07-24 | #3 | CM-6/CM-7 image-hardening implementation stated explicitly; CA-7 evidence pipeline noted to cover Hadolint output parsing (see POAM-0002..0009) | Sentinel |
+| 2026-07-24 | #4 | Remediation merged: CM-6/CM-7 and CA-7 evidence now match the implementation described above (POAM-0002..0007, POAM-0009 Remediated) | Sentinel |
