@@ -1,3 +1,22 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
 # Plan of Action & Milestones (POA&M) — superset-cognition-demo
 
 > Maintained by **Sentinel** (via Devin). Every scanner finding on a PR becomes a row here, mapped to
@@ -18,6 +37,7 @@
 | POAM-0022 | Missing ASF license header in `demo.live.Dockerfile` | Devin Review (RAT / repo rule) | SR-3 | Low | Remediated | #12 | — | 2026-07-24 | ASF Apache-2.0 header prepended on `demo/live-review` |
 | POAM-0023 | `SENTINEL_LIVE_DEMO_FLAG` and the new demo build file shipped undocumented (docs drift) | docs-currency build | CM-2 / CM-3, SA-5 | Medium | Remediated | #12 | — | 2026-07-24 | documented in `docs/admin_docs/installation/docker-builds.mdx`; Docusaurus build re-run clean |
 | POAM-0024 | Scan harness silently dropped **all** Hadolint findings (concatenated per-file JSON arrays unparsable) | Sentinel `normalize.py` | CA-7 / RA-5 | Medium | In Remediation | #12 | #15 | 2026-07-24 | decode concatenated JSON documents and flatten per-file arrays (0 → 66 Hadolint findings ingested) |
+| POAM-0030 | Missing ASF license header in `compliance/POAM.md` and `compliance/SSP.md` (RAT `License Check` failing on the base branch) | Apache RAT | SR-3 | Low | Remediated | #12 | — | 2026-07-24 | prepended HTML-comment ASF header to both documents |
 | POAM-0025 | Pre-existing backlog: 253 Gitleaks secret matches repo-wide (largely test fixtures / docs samples) | Gitleaks | IA-5 | High | Open | #12 | — | 2026-07-24 | out of PR scope — baseline/allowlist the fixtures, rotate any live credential |
 | POAM-0026 | Pre-existing backlog: 54 high-severity Semgrep findings repo-wide (raw SQL via `text()`/`execute`, `subprocess(shell=True)`) | Semgrep | SA-11 | High | Open | #12 | — | 2026-07-24 | out of PR scope — triage against `SECURITY.md` trust boundaries |
 | POAM-0027 | Pre-existing backlog: 17 high-severity Bandit findings (weak hashes, Jinja2 autoescape, shell use) | Bandit | SA-11 | High | Open | #12 | — | 2026-07-24 | out of PR scope — remediate per module |
@@ -33,6 +53,6 @@
 |---|---|
 | Open | 7 |
 | In Remediation | 6 |
-| Remediated | 3 |
+| Remediated | 4 |
 | Accepted-Risk | 0 |
 | Mean time to remediation (MTTR) | — |
