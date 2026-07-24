@@ -48,14 +48,28 @@ def _load(name):
     p = RAW / name
     if not p.exists() or p.stat().st_size == 0:
         return None
+    text = p.read_text()
     try:
-        return json.loads(p.read_text())
+        return json.loads(text)
     except Exception:
-        # some tools emit ndjson / concatenated objects
+        # some tools emit ndjson / concatenated documents (hadolint writes one
+        # JSON array per file, back to back with no separator)
         try:
-            return [json.loads(l) for l in p.read_text().splitlines() if l.strip()]
+            return list(_iter_json_documents(text))
         except Exception:
             return None
+
+
+def _iter_json_documents(text):
+    decoder = json.JSONDecoder()
+    idx, end = 0, len(text)
+    while idx < end:
+        while idx < end and text[idx].isspace():
+            idx += 1
+        if idx >= end:
+            return
+        doc, idx = decoder.raw_decode(text, idx)
+        yield doc
 
 
 def _sev(x, default="medium"):
@@ -107,11 +121,14 @@ for res in (d or {}).get("Results", []) if isinstance(d, dict) else []:
             fixable=bool(v.get("FixedVersion")))
 
 # ---- Hadolint -------------------------------------------------------------
+# the raw report is a sequence of concatenated per-file arrays; flatten one
+# level so per-file results are not dropped.
 d = _load("hadolint.json")
-for r in (d if isinstance(d, list) else []):
-    if isinstance(r, dict):
-        add("hadolint", _sev(r.get("level")), r.get("file"), r.get("line"),
-            r.get("code"), r.get("message"))
+for group in (d if isinstance(d, list) else []):
+    for r in (group if isinstance(group, list) else [group]):
+        if isinstance(r, dict):
+            add("hadolint", _sev(r.get("level")), r.get("file"), r.get("line"),
+                r.get("code"), r.get("message"))
 
 # ---- kube-linter ----------------------------------------------------------
 d = _load("kubelinter.json")

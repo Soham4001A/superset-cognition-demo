@@ -14,9 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# demo.live.Dockerfile — deliberately flawed for the Sentinel PR-gate demo
-FROM python:latest
-RUN apt-get update && apt-get install -y curl
+# demo.live.Dockerfile — live-demo service image for the Sentinel PR-gate demo
+ARG PY_VER=3.11.14-slim-trixie
+FROM python:${PY_VER}
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
 ENV SENTINEL_LIVE_DEMO_FLAG=1
+
 COPY . /app
-CMD python /app/main.py
+
+RUN useradd --system --create-home --shell /usr/sbin/nologin demo \
+    && chown -R demo:demo /app
+USER demo
+
+CMD ["python", "/app/main.py"]
