@@ -26,7 +26,7 @@ Each control lists its **implementation** and the **automated evidence** Sentine
 | **SA-11** | Developer Testing & Evaluation | SAST runs on every change; results block merge until triaged | Semgrep + Bandit gate on the required check |
 | **SR-3 / SR-4** | Supply Chain Controls / Provenance | SBOM generated per build; dependency licenses enforced | Trivy CycloneDX SBOM + `pip-licenses` allowlist |
 | **IA-5 / SC-28** | Authenticator Mgmt / Protection at Rest | No secrets committed to the repo | Gitleaks secret scan (required) |
-| **CM-6 / CM-7** | Configuration Settings / Least Functionality | Container + K8s configs are linted against hardening rules | Hadolint (Dockerfiles) + kube-linter (Helm) |
+| **CM-6 / CM-7** | Configuration Settings / Least Functionality | Container + K8s configs are linted against hardening rules; images must pin their base tag and run as a non-root user | Hadolint (Dockerfiles, one finding per line in `findings.json`) + kube-linter (Helm) + Semgrep dockerfile rules |
 | **CM-2 / CM-3** | Baseline Config / Change Control | Docs are kept in lockstep with code; PRs can't drift docs | docs-currency build + Devin doc-sync commit |
 | **SA-5** | System Documentation | Documentation builds and matches the current diff | Superset docs build validation |
 | **CA-7** | Continuous Monitoring | Compliance posture is measured continuously, not point-in-time | the Sentinel dashboard (findings burn-down, MTTR) |
@@ -44,3 +44,4 @@ POA&M item mapped to the control above; (e) post a required, human-digestible re
 | Date | PR | Change | By |
 |---|---|---|---|
 | _seed_ | — | Initial baseline SSP | Sentinel |
+| 2026-07-25 | #16 | CM-6/CM-7: hardening baseline for container images made explicit (pinned base tag, non-root `USER`); Hadolint evidence now actually reaches `findings.json` (aggregation defect fixed in PR #17) | Sentinel |
