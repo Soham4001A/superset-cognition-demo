@@ -46,3 +46,15 @@ superset/static/assets/
 superset-websocket/dist/
 venv
 .venv
+
+# secrets and local credentials must never enter the build context
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/*.p12
+**/id_rsa*
+**/.aws/
+**/.npmrc
+**/credentials.json
+**/service-account*.json

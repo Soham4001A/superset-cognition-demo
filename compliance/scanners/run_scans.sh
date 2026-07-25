@@ -63,10 +63,16 @@ else log "trivy unavailable — skipped"; fi
 # ---- Dockerfile hardening: Hadolint (CM-6, CM-7) ----------------------------
 if have hadolint; then
   log "hadolint (dockerfiles)…"
+  # hadolint emits one JSON array per file; emit each finding on its own line so
+  # normalize.py's ndjson fallback sees a flat list of objects.
   : > "$RAW/hadolint.json"
   find . -type f \( -name 'Dockerfile' -o -name '*.Dockerfile' -o -name 'Dockerfile.*' \) \
     -not -path '*/node_modules/*' | while read -r df; do
-      hadolint -f json "$df" 2>/dev/null >> "$RAW/hadolint.json" || true
+      hadolint -f json "$df" 2>/dev/null \
+        | python3 -c 'import json,sys
+raw = sys.stdin.read().strip()
+for f in (json.loads(raw) if raw else []):
+    print(json.dumps(f))' >> "$RAW/hadolint.json" || true
   done
 else log "hadolint unavailable — skipped"; fi
 
