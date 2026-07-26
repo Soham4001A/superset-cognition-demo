@@ -29,6 +29,10 @@ import json
 import pathlib
 import sys
 
+if len(sys.argv) < 3:
+    print("usage: normalize.py <raw_dir> <out_dir>", file=sys.stderr)
+    sys.exit(2)
+
 RAW = pathlib.Path(sys.argv[1])
 OUT = pathlib.Path(sys.argv[2])
 
@@ -58,6 +62,16 @@ def _load(name):
             return None
 
 
+def _get(d, key):
+    """Return d[key] when d is a mapping, else None (malformed input safe)."""
+    return d.get(key) if isinstance(d, dict) else None
+
+
+def _dicts(x):
+    """Coerce x into a list of dict records; anything malformed -> []."""
+    return [r for r in x if isinstance(r, dict)] if isinstance(x, list) else []
+
+
 def _sev(x, default="medium"):
     m = {"critical": "critical", "error": "high", "high": "high", "warning": "medium",
          "medium": "medium", "moderate": "medium", "low": "low", "info": "info",
@@ -79,28 +93,27 @@ def add(scanner, severity, file, line, rule, message, fixable=True):
 
 # ---- Semgrep --------------------------------------------------------------
 d = _load("semgrep.json")
-for r in (d or {}).get("results", []) if isinstance(d, dict) else []:
-    add("semgrep", _sev(r.get("extra", {}).get("severity")),
+for r in _dicts(_get(d, "results")):
+    add("semgrep", _sev((r.get("extra") or {}).get("severity")),
         r.get("path"), (r.get("start") or {}).get("line"),
         r.get("check_id"), (r.get("extra") or {}).get("message"))
 
 # ---- Bandit ---------------------------------------------------------------
 d = _load("bandit.json")
-for r in (d or {}).get("results", []) if isinstance(d, dict) else []:
+for r in _dicts(_get(d, "results")):
     add("bandit", _sev(r.get("issue_severity")), r.get("filename"),
         r.get("line_number"), r.get("test_id"), r.get("issue_text"))
 
 # ---- Gitleaks (secrets — always high) -------------------------------------
 d = _load("gitleaks.json")
-for r in d or []:
-    if isinstance(r, dict):
-        add("gitleaks", "high", r.get("File"), r.get("StartLine"),
-            r.get("RuleID"), r.get("Description"), fixable=True)
+for r in _dicts(d):
+    add("gitleaks", "high", r.get("File"), r.get("StartLine"),
+        r.get("RuleID"), r.get("Description"), fixable=True)
 
 # ---- Trivy (CVEs) ---------------------------------------------------------
 d = _load("trivy.json")
-for res in (d or {}).get("Results", []) if isinstance(d, dict) else []:
-    for v in res.get("Vulnerabilities") or []:
+for res in _dicts(_get(d, "Results")):
+    for v in _dicts(res.get("Vulnerabilities")):
         add("trivy", _sev(v.get("Severity")), res.get("Target"), None,
             v.get("VulnerabilityID"),
             f"{v.get('PkgName')} {v.get('InstalledVersion')} → {v.get('FixedVersion') or 'no fix'}: {v.get('Title','')}",
@@ -108,27 +121,25 @@ for res in (d or {}).get("Results", []) if isinstance(d, dict) else []:
 
 # ---- Hadolint -------------------------------------------------------------
 d = _load("hadolint.json")
-for r in (d if isinstance(d, list) else []):
-    if isinstance(r, dict):
-        add("hadolint", _sev(r.get("level")), r.get("file"), r.get("line"),
-            r.get("code"), r.get("message"))
+for r in _dicts(d):
+    add("hadolint", _sev(r.get("level")), r.get("file"), r.get("line"),
+        r.get("code"), r.get("message"))
 
 # ---- kube-linter ----------------------------------------------------------
 d = _load("kubelinter.json")
-for r in (d or {}).get("Reports", []) if isinstance(d, dict) else []:
+for r in _dicts(_get(d, "Reports")):
     add("kubelinter", "medium",
         ((r.get("Object") or {}).get("Metadata") or {}).get("FilePath"), None,
         r.get("Check"), (r.get("Diagnostic") or {}).get("Message"))
 
 # ---- Licenses -------------------------------------------------------------
 d = _load("licenses.json")
-for r in d or []:
-    if isinstance(r, dict):
-        lic = (r.get("License") or "unknown").lower()
-        if not any(a in lic for a in LICENSE_ALLOW):
-            add("licenses", "medium", r.get("Name"), None, lic,
-                f"{r.get('Name')} {r.get('Version')} uses non-allowlisted license '{r.get('License')}'",
-                fixable=False)
+for r in _dicts(d):
+    lic = (r.get("License") or "unknown").lower()
+    if not any(a in lic for a in LICENSE_ALLOW):
+        add("licenses", "medium", r.get("Name"), None, lic,
+            f"{r.get('Name')} {r.get('Version')} uses non-allowlisted license '{r.get('License')}'",
+            fixable=False)
 
 # ---- Aggregate + write ----------------------------------------------------
 by_sev, by_control = {}, {}
