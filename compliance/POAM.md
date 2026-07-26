@@ -9,6 +9,7 @@
 |----|---------|---------|---------|----------|--------|----|----------|--------|-------------|
 | POAM-0001 | _example: hardcoded fallback secret in config_ | Gitleaks | IA-5 | High | Open | — | — | _seed_ | replace with env-injected secret |
 | POAM-0005 | Missing ASF license header in `compliance/scanners/normalize.py` and `run_scans.sh` | License header check | SR-3 | Low | Remediated | #10 | issue #5 | 2026-07-24 | prepended standard ASF Apache-2.0 header to both files (no logic changes) |
+| POAM-0006 | Unpinned scanner installs (`semgrep`, `bandit`, `pip-licenses`) in `compliance/scanners/run_scans.sh` | Manual review | RA-5 / SI-2 / SR-3 | Medium | Remediated | #11 | issue #6 | 2026-07-26 | pinned semgrep==1.170.0, bandit==1.9.4, pip-licenses==5.5.5 via `have_pinned` helper that verifies the running version |
 
 <!-- SENTINEL:POAM-ROWS -->
 <!-- Devin appends new POA&M rows directly above this marker, one per finding. -->

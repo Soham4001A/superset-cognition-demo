@@ -34,14 +34,27 @@ cd "$TARGET"
 log() { printf '  [scan] %s\n' "$*" >&2; }
 have() { command -v "$1" >/dev/null 2>&1; }
 
+# Pinned scanner versions (RA-5 / SI-2 / SR-3): scans must be reproducible and auditable.
+SEMGREP_VERSION="1.170.0"
+BANDIT_VERSION="1.9.4"
+PIP_LICENSES_VERSION="5.5.5"
+
+# have_pinned <cmd> <pypi_pkg> <version>: true when <cmd> is available at the pinned version,
+# installing that exact version if it is missing or a different version is present.
+have_pinned() {
+  local cmd="$1" pkg="$2" ver="$3"
+  if have "$cmd" && "$cmd" --version 2>/dev/null | grep -qw "$ver"; then return 0; fi
+  pip install -q "$pkg==$ver" 2>/dev/null && have "$cmd"
+}
+
 # ---- SAST: Semgrep (SA-11, RA-5) --------------------------------------------
-if have semgrep || pip install -q semgrep 2>/dev/null; then
+if have_pinned semgrep semgrep "$SEMGREP_VERSION"; then
   log "semgrep (SAST)…"
   semgrep --config=auto --json --quiet -o "$RAW/semgrep.json" . 2>/dev/null || true
 else log "semgrep unavailable — skipped"; fi
 
 # ---- Python SAST: Bandit (SA-11) --------------------------------------------
-if have bandit || pip install -q bandit 2>/dev/null; then
+if have_pinned bandit bandit "$BANDIT_VERSION"; then
   log "bandit (python SAST)…"
   bandit -r . -f json -o "$RAW/bandit.json" -q 2>/dev/null || true
 else log "bandit unavailable — skipped"; fi
@@ -77,7 +90,7 @@ if have kube-linter && [ -d helm ]; then
 else log "kube-linter unavailable or no helm/ — skipped"; fi
 
 # ---- License compliance: pip-licenses (SR-3) --------------------------------
-if have pip-licenses || pip install -q pip-licenses 2>/dev/null; then
+if have_pinned pip-licenses pip-licenses "$PIP_LICENSES_VERSION"; then
   log "pip-licenses (license compliance)…"
   pip-licenses --format=json > "$RAW/licenses.json" 2>/dev/null || true
 else log "pip-licenses unavailable — skipped"; fi
