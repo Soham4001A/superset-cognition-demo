@@ -129,6 +129,27 @@ CMD ["/app/docker/entrypoints/run-server.sh"]
 - `PY_VER`: specifying the base image for the python backend, we don't recommend altering
   this setting if you're not working on forwards or backwards compatibility
 
+## Demo images in this fork
+
+This fork carries an extra, non-published build file used only by the compliance-gate
+demonstration:
+
+- `demo.live.Dockerfile`: builds a minimal live demo service. It is **not** part of the
+  official image matrix, is never pushed to Docker Hub, and is not supported for production
+  use.
+
+Build it locally with:
+
+```bash
+docker build -f demo.live.Dockerfile -t superset-live-demo:local .
+```
+
+### Demo environment variables
+
+- `SENTINEL_LIVE_DEMO_FLAG`: set to `1` in `demo.live.Dockerfile` to mark a container as the
+  live demo instance. It has no effect on Superset itself and should stay unset in every
+  non-demo image.
+
 ## Caching
 
 To accelerate builds, we follow Docker best practices and use `apache/superset-cache`.
